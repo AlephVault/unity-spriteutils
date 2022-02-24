@@ -1,0 +1,16 @@
+{
+    "name": "AlephVault.Unity.SpriteUtils.Samples",
+    "rootNamespace": "",
+    "references": [
+        "GUID:255de8069ce706544836a6062b00ac0d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
