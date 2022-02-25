@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -57,6 +58,10 @@ namespace AlephVault.Unity.SpriteUtils
                 // Tracks the sprites.
                 private Sprite[] sprites;
                 
+                // What to do when this sprite grid is
+                // finalized/destroyed.
+                private Action onGarbageCollected;
+                
                 /// <summary>
                 ///   Given a texture, and a setting for dimensions and PPU, it slices the grid.
                 ///   The slicing starts at (0, 0), ends at the full size of the texture, requires
@@ -67,10 +72,13 @@ namespace AlephVault.Unity.SpriteUtils
                 /// <param name="frameWidth">The frame width</param>
                 /// <param name="frameHeight">The frame height</param>
                 /// <param name="pixelsPerUnit">The pixels per unit</param>
+                /// <param name="onFinalized">What do do when this sprite grid is released</param>
                 /// <exception cref="ArgumentNullException">The texture is null</exception>
                 /// <exception cref="ArgumentException">The dimensions are inconsistent</exception>
-                public SpriteGrid(Texture2D texture, uint frameWidth, uint frameHeight, float pixelsPerUnit)
-                {
+                public SpriteGrid(
+                    Texture2D texture, uint frameWidth, uint frameHeight, float pixelsPerUnit,
+                    Action onFinalized = null
+                ) {
                     if (texture == null) throw new ArgumentNullException(nameof(texture));
                     if (frameWidth == 0) throw new ArgumentException("The frame width cannot be 0");
                     if (frameHeight == 0) throw new ArgumentException("The frame height cannot be 0");
@@ -89,6 +97,35 @@ namespace AlephVault.Unity.SpriteUtils
                     FrameColumns = (uint)(texture.width / frameWidth);
                     FrameRows = (uint)(texture.height / frameHeight);
                     sprites = new Sprite[FrameColumns * FrameRows];
+                    onGarbageCollected = onFinalized;
+                    if (onGarbageCollected == null && !AssetDatabase.Contains(Texture))
+                    {
+                        Debug.LogWarning(
+                            $"The given texture: {texture} will not be notified when " +
+                            $"this object is destroyed. You will have no mean of knowing when " +
+                            $"this texture is no longer used by sprite grid objects being garbage " +
+                            $"collected (destroyed, finalized). It is recommended that you use " +
+                            $"textures that exist as application assets instead, or provide " +
+                            $"an onFinalized callback otherwise. Alternatively ensure that you " +
+                            $"know the involved textures have somehow a global lifespan or other " +
+                            $"life-cycle greater than those of the involved sprite grids"
+                        );
+                    }
+
+                    if (onGarbageCollected != null && AssetDatabase.Contains(Texture))
+                    {
+                        Debug.Log(
+                            "A finalizer was specified while giving an Asset-stored " +
+                            "texture. This finalizer will not be invoked on sprite grid " +
+                            "finalization / garbage collection, since the texture has no " +
+                            "need to notify when not used anymore"
+                        );
+                    }
+                }
+
+                ~SpriteGrid()
+                {
+                    onGarbageCollected?.Invoke();
                 }
 
                 /// <summary>

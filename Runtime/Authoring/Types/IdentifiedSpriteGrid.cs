@@ -65,8 +65,9 @@ namespace AlephVault.Unity.SpriteUtils
                 public readonly T Key;
                 
                 private IdentifiedSpriteGrid(
-                    T key, Texture2D texture, uint frameWidth, uint frameHeight, float pixelsPerUnit
-                ) : base(texture, frameWidth, frameHeight, pixelsPerUnit)
+                    T key, Texture2D texture, uint frameWidth, uint frameHeight, float pixelsPerUnit,
+                    Action onFinalized = null
+                ) : base(texture, frameWidth, frameHeight, pixelsPerUnit, onFinalized)
                 {
                     if (key == null) throw new ArgumentNullException(nameof(key));
                     Key = key;
@@ -102,6 +103,39 @@ namespace AlephVault.Unity.SpriteUtils
                     return new IdentifiedSpriteGrid<T>(
                         key, parameters.Item1, parameters.Item2,
                         parameters.Item3, parameters.Item4
+                    );
+                }
+
+                /// <summary>
+                ///   <para>
+                ///     Gets or creates an instance of <see cref="IdentifiedSpriteGrid{T}"/>
+                ///     for the current key and, if absent, initializes the new instance with
+                ///     the parameters returned from the <see cref="ifAbsent"/> function.
+                ///   </para>
+                ///   <para>
+                ///     When the instance is just created, it will be referred by whatever the
+                ///     reference is held by. It is advisable to immediately make use of it,
+                ///     or the reference, on being lost, will dispose the resources.
+                ///   </para>
+                /// </summary>
+                /// <param name="key">The key to retrieve an instance for</param>
+                /// <param name="ifAbsent">A function returning the parameters to use for its creation, if absent</param>
+                /// <returns>The instance corresponding to that key</returns>
+                public static IdentifiedSpriteGrid<T> Get(T key, Func<Tuple<Texture2D, uint, uint, float, Action>> ifAbsent)
+                {
+                    if (instances.TryGetValue(key, out WeakReference<IdentifiedSpriteGrid<T>> instanceRef) && 
+                        instanceRef.TryGetTarget(out IdentifiedSpriteGrid<T> target))
+                    {
+                        return target;
+                    }
+                    // Get the parameters to make a new instance.
+                    // Make the instance and return it (it will
+                    // automatically add the instance to the map).
+                    Tuple<Texture2D, uint, uint, float, Action> parameters = ifAbsent();
+                    return new IdentifiedSpriteGrid<T>(
+                        key, parameters.Item1, parameters.Item2,
+                        parameters.Item3, parameters.Item4,
+                        parameters.Item5
                     );
                 }
 
