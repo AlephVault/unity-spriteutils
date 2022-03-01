@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -45,6 +43,14 @@ namespace AlephVault.Unity.SpriteUtils
                 /// </summary>
                 public Texture2D Texture;
 
+                // The rect to apply to this texture.
+                private Rect _subSubRect;
+
+                /// <summary>
+                ///   The rect to apply to this texture.
+                /// </summary>
+                public Rect SubRect => _subSubRect;
+
                 /// <summary>
                 ///   The number of columns in the grid.
                 /// </summary>
@@ -69,6 +75,7 @@ namespace AlephVault.Unity.SpriteUtils
                 ///   and generates the slicing on demand.
                 /// </summary>
                 /// <param name="texture">The texture to slice</param>
+                /// <param name="rect">An optional rect to use</param>
                 /// <param name="frameWidth">The frame width</param>
                 /// <param name="frameHeight">The frame height</param>
                 /// <param name="pixelsPerUnit">The pixels per unit</param>
@@ -76,10 +83,22 @@ namespace AlephVault.Unity.SpriteUtils
                 /// <exception cref="ArgumentNullException">The texture is null</exception>
                 /// <exception cref="ArgumentException">The dimensions are inconsistent</exception>
                 public SpriteGrid(
-                    Texture2D texture, uint frameWidth, uint frameHeight, float pixelsPerUnit,
-                    Action onFinalized = null
+                    Texture2D texture, Rect? rect, uint frameWidth, uint frameHeight, float pixelsPerUnit,
+                    Action onInitialized, Action onFinalized
                 ) {
                     if (texture == null) throw new ArgumentNullException(nameof(texture));
+                    if (rect == null) rect = new Rect(0, 0, texture.width, texture.height);
+                    if (rect.Value.x + rect.Value.width > texture.width ||
+                        rect.Value.y + rect.Value.height > texture.height ||
+                        rect.Value.x < 0 || rect.Value.y < 0 ||
+                        rect.Value.width < 0 || rect.Value.height < 0)
+                    {
+                        throw new ArgumentException(
+                            "Invalid rect used to create a sprite grid. Rects must have " +
+                            "strictly positive sizes, non-negative position, and the right/top " +
+                            "boundaries must not pass texture's ones"
+                        );
+                    }
                     if (frameWidth == 0) throw new ArgumentException("The frame width cannot be 0");
                     if (frameHeight == 0) throw new ArgumentException("The frame height cannot be 0");
                     if (pixelsPerUnit <= 0) throw new ArgumentException("The pixels per unit must be positive");
@@ -94,22 +113,44 @@ namespace AlephVault.Unity.SpriteUtils
                     FrameHeight = frameHeight;
                     PixelsPerUnit = pixelsPerUnit;
                     Texture = texture;
-                    FrameColumns = (uint)(texture.width / frameWidth);
-                    FrameRows = (uint)(texture.height / frameHeight);
+                    FrameColumns = (uint)(rect.Value.width / frameWidth);
+                    FrameRows = (uint)(rect.Value.height / frameHeight);
                     sprites = new Sprite[FrameColumns * FrameRows];
                     onGarbageCollected = onFinalized;
-                    if (onGarbageCollected == null && !AssetDatabase.Contains(Texture))
+                    _subSubRect = rect.Value;
+                    if (!AssetDatabase.Contains(Texture))
                     {
-                        Debug.LogWarning(
-                            $"The given texture: {texture} will not be notified when " +
-                            $"this object is destroyed. You will have no mean of knowing when " +
-                            $"this texture is no longer used by sprite grid objects being garbage " +
-                            $"collected (destroyed, finalized). It is recommended that you use " +
-                            $"textures that exist as application assets instead, or provide " +
-                            $"an onFinalized callback otherwise. Alternatively ensure that you " +
-                            $"know the involved textures have somehow a global lifespan or other " +
-                            $"life-cycle greater than those of the involved sprite grids"
-                        );
+                        if (onInitialized == null)
+                        {
+                            Debug.LogWarning(
+                                $"The given texture: {texture} will not be notified when " +
+                                $"this object is initialized. Nobody is being notified right now when " +
+                                $"this object (& texture) is just used by this sprite grid object. It is " +
+                                $"recommended that you use  textures that exist as application assets " +
+                                $"instead, or provide an onInitialized callback otherwise. Alternatively " +
+                                $"ensure that you know the involved textures have somehow a global " +
+                                $"lifespan or other life-cycle greater than those of the involved " +
+                                $"sprite grids"
+                            );
+                        }
+                        else
+                        {
+                            onInitialized();
+                        }
+                        
+                        if (onGarbageCollected == null)
+                        {
+                            Debug.LogWarning(
+                                $"The given texture: {texture} will not be notified when " +
+                                $"this object is destroyed. You will have no mean of knowing when " +
+                                $"this texture is no longer used by sprite grid objects being garbage " +
+                                $"collected (destroyed, finalized). It is recommended that you use " +
+                                $"textures that exist as application assets instead, or provide " +
+                                $"an onFinalized callback otherwise. Alternatively ensure that you " +
+                                $"know the involved textures have somehow a global lifespan or other " +
+                                $"life-cycle greater than those of the involved sprite grids"
+                            );
+                        }
                     }
 
                     if (onGarbageCollected != null && AssetDatabase.Contains(Texture))
@@ -140,7 +181,8 @@ namespace AlephVault.Unity.SpriteUtils
                     if (sprites[row * FrameColumns + column] == null)
                     {
                         Rect rect = new Rect(
-                            FrameWidth * column, Texture.height - FrameHeight * (row + 1), FrameWidth, FrameHeight
+                            FrameWidth * column + _subSubRect.x, _subSubRect.height - FrameHeight * (row + 1) + _subSubRect.y,
+                            FrameWidth, FrameHeight
                         );
                         sprites[row * FrameColumns + column] = Sprite.Create(Texture, rect, Vector2.zero, PixelsPerUnit);
                     }

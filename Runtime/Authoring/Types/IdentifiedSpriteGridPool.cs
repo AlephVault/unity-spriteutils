@@ -87,41 +87,9 @@ namespace AlephVault.Unity.SpriteUtils
                 /// <param name="key">The key to retrieve an instance for</param>
                 /// <param name="ifAbsent">A function returning the parameters to use for its creation, if absent</param>
                 /// <returns>The instance corresponding to that key</returns>
-                public IdentifiedSpriteGrid<T> Get(T key, Func<Tuple<Texture2D, uint, uint, float>> ifAbsent)
-                {
-                    if (instances.TryGetValue(key, out WeakReference<IdentifiedSpriteGrid<T>> instanceRef) && 
-                        instanceRef.TryGetTarget(out IdentifiedSpriteGrid<T> target))
-                    {
-                        return target;
-                    }
-                    // Get the parameters to make a new instance.
-                    // Make the instance, add it to the map and
-                    // then return it.
-                    Tuple<Texture2D, uint, uint, float> parameters = ifAbsent();
-                    IdentifiedSpriteGrid<T> instance = new IdentifiedSpriteGrid<T>(
-                        this, key, parameters.Item1, parameters.Item2,
-                        parameters.Item3, parameters.Item4
-                    );
-                    instances[key] = new WeakReference<IdentifiedSpriteGrid<T>>(instance);
-                    return instance;
-                }
-                
-                /// <summary>
-                ///   <para>
-                ///     Gets or creates an instance of <see cref="IdentifiedSpriteGrid{T}"/>
-                ///     for the current key and, if absent, initializes the new instance with
-                ///     the parameters returned from the <see cref="ifAbsent"/> function.
-                ///   </para>
-                ///   <para>
-                ///     When the instance is just created, it will be referred by whatever the
-                ///     reference is held by. It is advisable to immediately make use of it,
-                ///     or the reference, on being lost, will dispose the resources.
-                ///   </para>
-                /// </summary>
-                /// <param name="key">The key to retrieve an instance for</param>
-                /// <param name="ifAbsent">A function returning the parameters to use for its creation, if absent</param>
-                /// <returns>The instance corresponding to that key</returns>
-                public IdentifiedSpriteGrid<T> Get(T key, Func<Tuple<Texture2D, uint, uint, float, Action>> ifAbsent)
+                public IdentifiedSpriteGrid<T> Get(
+                    T key, Func<Tuple<Texture2D, Rect?, uint, uint, float, Action, Action>> ifAbsent
+                )
                 {
                     if (instances.TryGetValue(key, out WeakReference<IdentifiedSpriteGrid<T>> instanceRef) && 
                         instanceRef.TryGetTarget(out IdentifiedSpriteGrid<T> target))
@@ -131,11 +99,11 @@ namespace AlephVault.Unity.SpriteUtils
                     // Get the parameters to make a new instance.
                     // Make the instance and return it (it will
                     // automatically add the instance to the map).
-                    Tuple<Texture2D, uint, uint, float, Action> parameters = ifAbsent();
+                    Tuple<Texture2D, Rect?, uint, uint, float, Action, Action> parameters = ifAbsent();
                     return new IdentifiedSpriteGrid<T>(
                         this, key, parameters.Item1, parameters.Item2,
                         parameters.Item3, parameters.Item4,
-                        parameters.Item5
+                        parameters.Item5, parameters.Item6, parameters.Item7
                     );
                 }
 
