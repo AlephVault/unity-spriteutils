@@ -19,7 +19,6 @@ namespace AlephVault.Unity.SpriteUtils
             
             private void Awake()
             {
-                IdentifiedSpriteGrid<int>.LastSecondRescueSize = 3;
                 factory = GetComponent<SampleSpriteGridFactory>();
                 if (appliers.Length < 4)
                 {

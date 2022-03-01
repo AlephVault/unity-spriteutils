@@ -11,6 +11,8 @@ namespace AlephVault.Unity.SpriteUtils
         {
             [SerializeField]
             private Texture2D[] textures;
+
+            private IdentifiedSpriteGridPool<int> pool = new IdentifiedSpriteGridPool<int>();
             
             public IdentifiedSpriteGrid<int> Get(int idx)
             {
@@ -18,7 +20,7 @@ namespace AlephVault.Unity.SpriteUtils
                     "Choose a valid texture index among the configured textures"
                 );
 
-                return IdentifiedSpriteGrid<int>.Get(idx, () => new Tuple<Texture2D, uint, uint, float>(
+                return pool.Get(idx, () => new Tuple<Texture2D, uint, uint, float>(
                     textures[idx], 32, 32, 32
                 ));
             }
