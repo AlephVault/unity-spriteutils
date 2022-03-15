@@ -9,7 +9,7 @@ namespace AlephVault.Unity.SpriteUtils
     namespace Samples
     {
         [RequireComponent(typeof(SpriteRenderer))]
-        public class SampleSpriteGridApplier : SpriteGridApplier<Sprite>
+        public class SampleSpriteGridSelectionApplier : SpriteGridSelectionApplier<Sprite>
         {
             private int index = 0;
             private float timer = 0;

@@ -8,12 +8,12 @@ namespace AlephVault.Unity.SpriteUtils
     namespace Samples
     {
         [RequireComponent(typeof(SampleSpriteGridFactory))]
-        public class SampleSpriteGridAssigner : MonoBehaviour
+        public class SampleSpriteGridSelectionAssigner : MonoBehaviour
         {
             private SampleSpriteGridFactory factory;
 
             [SerializeField]
-            private SampleSpriteGridApplier[] appliers;
+            private SampleSpriteGridSelectionApplier[] appliers;
 
             private int preparedIndex = -1;
             
@@ -56,7 +56,7 @@ namespace AlephVault.Unity.SpriteUtils
                     {
                         if (Input.GetKeyDown(key) && preparedIndex != -1)
                         {
-                            SampleSpriteGridApplier obj = appliers[preparedIndex];
+                            SampleSpriteGridSelectionApplier obj = appliers[preparedIndex];
                             obj.UseSelection(new SampleSpriteGridSelection(
                                 factory.Get(key - KeyCode.Alpha0), new Vector2Int(preparedIndex % 2, preparedIndex / 2)
                             ));
@@ -70,7 +70,7 @@ namespace AlephVault.Unity.SpriteUtils
                     {
                         if (Input.GetKeyDown(KeyCode.Minus) && preparedIndex != -1)
                         {
-                            SampleSpriteGridApplier obj = appliers[preparedIndex];
+                            SampleSpriteGridSelectionApplier obj = appliers[preparedIndex];
                             preparedIndex = -1;
                             obj.ReleaseSelection();
                         }

@@ -14,7 +14,7 @@ namespace AlephVault.Unity.SpriteUtils
             ///   according to their own logic and even filtering out
             ///   the invalid sprite grids (i.e. unsuitable for them).
             /// </summary>
-            public abstract class SpriteGridApplier<SelectionResult> : MonoBehaviour
+            public abstract class SpriteGridSelectionApplier<SelectionResult> : MonoBehaviour
             {
                 /// <summary>
                 ///   The current sprite grid.
