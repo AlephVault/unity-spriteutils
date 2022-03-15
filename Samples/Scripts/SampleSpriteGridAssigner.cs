@@ -57,8 +57,10 @@ namespace AlephVault.Unity.SpriteUtils
                         if (Input.GetKeyDown(key) && preparedIndex != -1)
                         {
                             SampleSpriteGridApplier obj = appliers[preparedIndex];
+                            obj.UseSelection(new SampleSpriteGridSelection(
+                                factory.Get(key - KeyCode.Alpha0), new Vector2Int(preparedIndex % 2, preparedIndex / 2)
+                            ));
                             preparedIndex = -1;
-                            obj.UseSpriteGrid(factory.Get(key - KeyCode.Alpha0));
                             found = true;
                             break;
                         }
@@ -70,7 +72,7 @@ namespace AlephVault.Unity.SpriteUtils
                         {
                             SampleSpriteGridApplier obj = appliers[preparedIndex];
                             preparedIndex = -1;
-                            obj.ReleaseSpriteGrid();
+                            obj.ReleaseSelection();
                         }
                     }
                 }

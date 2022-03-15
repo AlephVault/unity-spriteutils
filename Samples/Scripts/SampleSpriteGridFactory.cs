@@ -1,5 +1,5 @@
 using System;
-using AlephVault.Unity.SpriteUtils.Authoring.Types;
+using AlephVault.Unity.SpriteUtils.Types;
 using UnityEngine;
 
 

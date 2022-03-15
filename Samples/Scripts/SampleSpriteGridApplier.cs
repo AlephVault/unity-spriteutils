@@ -1,5 +1,6 @@
 using System;
 using AlephVault.Unity.SpriteUtils.Authoring.Types;
+using AlephVault.Unity.SpriteUtils.Types;
 using UnityEngine;
 
 
@@ -8,7 +9,7 @@ namespace AlephVault.Unity.SpriteUtils
     namespace Samples
     {
         [RequireComponent(typeof(SpriteRenderer))]
-        public class SampleSpriteGridApplier : SpriteGridApplier
+        public class SampleSpriteGridApplier : SpriteGridApplier<Sprite>
         {
             private int index = 0;
             private float timer = 0;
@@ -33,19 +34,21 @@ namespace AlephVault.Unity.SpriteUtils
 
             private void SetCurrentSprite()
             {
-                if (CurrentSpriteGrid != null)
+                if (CurrentSelection != null)
                 {
-                    spriteRenderer.sprite = CurrentSpriteGrid.Get((uint)index / 2, (uint)index % 2);
+                    spriteRenderer.sprite = CurrentSelection.GetSelection();
                 }
             }
 
-            protected override bool IsCompatible(SpriteGrid sg)
+            protected override bool IsCompatible(SpriteGridSelection<Sprite> selection)
             {
+                SpriteGrid sg = selection.SourceGrid;
                 return sg.FrameWidth == 32 && sg.FrameHeight == 32 && sg.FrameColumns == 2 && sg.FrameRows == 2;
             }
 
-            protected override void BeforeUse(SpriteGrid sg)
+            protected override void BeforeUse(SpriteGridSelection<Sprite> selection)
             {
+                SpriteGrid sg = selection.SourceGrid;
                 if (sg.FrameWidth != 32 || sg.FrameHeight != 32) throw new ArgumentException(
                     "Dimensions of a valid SpriteGrid for this applier must be 32x32"
                 );
@@ -54,12 +57,12 @@ namespace AlephVault.Unity.SpriteUtils
                 );
             }
 
-            protected override void AfterUse(SpriteGrid sg)
+            protected override void AfterUse(SpriteGridSelection<Sprite> sg)
             {
                 SetCurrentSprite();
             }
 
-            protected override void AfterRelease(SpriteGrid sg)
+            protected override void AfterRelease(SpriteGridSelection<Sprite> sg)
             {
                 spriteRenderer.sprite = null;
             }
