@@ -44,12 +44,33 @@ namespace AlephVault.Unity.SpriteUtils
             }
 
             /// <summary>
+            ///   This utility method validates a particular Vector2Int selection
+            ///   and returns the corresponding sprite from the sprite grid.
+            ///   Intended to be used in implementations of virtual method
+            ///   <see cref="ValidateAndMap"/>.
+            /// </summary>
+            /// <param name="sourceGrid">The source grid to validate against</param>
+            /// <param name="selection">The selection to validate</param>
+            /// <returns>The validated and mapped sprite</returns>
+            protected Sprite ValidateAndMapSprite(SpriteGrid sourceGrid, Vector2Int selection)
+            {
+                if (selection.x < 0 || selection.y < 0 || selection.x >= sourceGrid.FrameColumns ||
+                    selection.y >= sourceGrid.FrameRows)
+                {
+                    throw new ArgumentException($"Invalid selection {selection} for a sprite grid of " +
+                                                $"dimension: ({sourceGrid.FrameColumns}, {sourceGrid.FrameRows})");
+                }
+
+                return sourceGrid.Get((uint)selection.y, (uint)selection.x);
+            }
+
+            /// <summary>
             ///   Validates the selection spec against the source grid,
             ///   and then transforms & assigns it accordingly.
             /// </summary>
             /// <param name="sourceGrid">The grid to select from</param>
             /// <param name="selection">The selection data to use</param>
-            /// <returns></returns>
+            /// <returns>The mapped result</returns>
             protected abstract SelectionResult ValidateAndMap(SpriteGrid sourceGrid, SelectionSpec selection);
 
             /// <summary>

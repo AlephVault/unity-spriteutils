@@ -18,14 +18,7 @@ namespace AlephVault.Unity.SpriteUtils
 
             protected override Sprite ValidateAndMap(SpriteGrid sourceGrid, Vector2Int selection)
             {
-                if (selection.x < 0 || selection.y < 0 || selection.x >= sourceGrid.FrameColumns ||
-                    selection.y >= sourceGrid.FrameRows)
-                {
-                    throw new ArgumentException($"Invalid selection {selection} for a sprite grid of " +
-                                                $"dimension: ({sourceGrid.FrameColumns}, {sourceGrid.FrameRows})");
-                }
-
-                return sourceGrid.Get((uint)selection.y, (uint)selection.x);
+                return ValidateAndMapSprite(sourceGrid, selection);
             }
         }
     }
