@@ -24,7 +24,7 @@ namespace AlephVault.Unity.SpriteUtils
             private SelectionSpec spec;
 
             // The cached result.
-            private SelectionResult result;
+            protected SelectionResult result;
 
             // Whether it must validate and map the spec or not.
             // This stands for the first attempt of retrieving
