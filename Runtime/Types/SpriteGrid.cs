@@ -1,5 +1,4 @@
 using System;
-using UnityEditor;
 using UnityEngine;
 
 
@@ -116,48 +115,32 @@ namespace AlephVault.Unity.SpriteUtils
                 sprites = new Sprite[FrameColumns * FrameRows];
                 onGarbageCollected = onFinalized;
                 _subSubRect = rect.Value;
-                if (!AssetDatabase.Contains(Texture))
+                
+                if (onInitialized == null)
                 {
-                    if (onInitialized == null)
-                    {
-                        Debug.LogWarning(
-                            $"The given texture: {texture} will not be notified when " +
-                            $"this object is initialized. Nobody is being notified right now when " +
-                            $"this object (& texture) is just used by this sprite grid object. It is " +
-                            $"recommended that you use  textures that exist as application assets " +
-                            $"instead, or provide an onInitialized callback otherwise. Alternatively " +
-                            $"ensure that you know the involved textures have somehow a global " +
-                            $"lifespan or other life-cycle greater than those of the involved " +
-                            $"sprite grids"
-                        );
-                    }
-                    else
-                    {
-                        onInitialized();
-                    }
-                    
-                    if (onGarbageCollected == null)
-                    {
-                        Debug.LogWarning(
-                            $"The given texture: {texture} will not be notified when " +
-                            $"this object is destroyed. You will have no mean of knowing when " +
-                            $"this texture is no longer used by sprite grid objects being garbage " +
-                            $"collected (destroyed, finalized). It is recommended that you use " +
-                            $"textures that exist as application assets instead, or provide " +
-                            $"an onFinalized callback otherwise. Alternatively ensure that you " +
-                            $"know the involved textures have somehow a global lifespan or other " +
-                            $"life-cycle greater than those of the involved sprite grids"
-                        );
-                    }
+                    Debug.LogWarning(
+                        $"The given texture: {texture} will not be notified when " +
+                        $"this object is initialized. Nobody is being notified right now when " +
+                        $"this object (& texture) is just used by this sprite grid object. It " +
+                        $"is recommended to always use a kind of initializer, that accounts " +
+                        $"for the texture being used once more, so the texture can later be " +
+                        $"accounted for destruction on the finalizer"
+                    );
                 }
-
-                if (onGarbageCollected != null && AssetDatabase.Contains(Texture))
+                else
                 {
-                    Debug.Log(
-                        "A finalizer was specified while giving an Asset-stored " +
-                        "texture. This finalizer will not be invoked on sprite grid " +
-                        "finalization / garbage collection, since the texture has no " +
-                        "need to notify when not used anymore"
+                    onInitialized();
+                }
+                    
+                if (onGarbageCollected == null)
+                {
+                    Debug.LogWarning(
+                        $"The given texture: {texture} will not be notified when " +
+                        $"this object is destroyed. You will have no mean of knowing when " +
+                        $"this texture is no longer used by sprite grid objects being garbage " +
+                        $"collected (destroyed, finalized). Add a finalizer function that " +
+                        $"attempts to destroy the object (and catches when the object is, " +
+                        $"instead, an asset and cannot be destroyed)"
                     );
                 }
             }
