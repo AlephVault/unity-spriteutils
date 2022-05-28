@@ -159,13 +159,27 @@ namespace AlephVault.Unity.SpriteUtils
             /// <returns>A sprite at given coordinates</returns>
             public Sprite Get(uint row, uint column)
             {
+                return Get(row, column, Vector2.zero);
+            }
+            
+            /// <summary>
+            ///   Gets a sprite at given column and row. The first call at certain coordinates,
+            ///   if valid, instantiates the corresponding sprite. It also allows a custom
+            ///   pivot to be used.
+            /// </summary>
+            /// <param name="row">The row. Smaller than <see cref="FrameRows"/></param>
+            /// <param name="column">The column. Smaller than <see cref="FrameColumns"/></param>
+            /// <param name="pivot">The pivot. Each dimension should be in [0, 1]</param>
+            /// <returns>A sprite at given coordinates</returns>
+            public Sprite Get(uint row, uint column, Vector2 pivot)
+            {
                 if (sprites[row * FrameColumns + column] == null)
                 {
                     Rect rect = new Rect(
                         FrameWidth * column + _subSubRect.x, _subSubRect.height - FrameHeight * (row + 1) + _subSubRect.y,
                         FrameWidth, FrameHeight
                     );
-                    sprites[row * FrameColumns + column] = Sprite.Create(Texture, rect, Vector2.zero, PixelsPerUnit);
+                    sprites[row * FrameColumns + column] = Sprite.Create(Texture, rect, pivot, PixelsPerUnit);
                 }
                 return sprites[row * FrameColumns + column];
             }
