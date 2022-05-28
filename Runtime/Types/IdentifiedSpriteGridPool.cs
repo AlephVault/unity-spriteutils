@@ -41,6 +41,7 @@ namespace AlephVault.Unity.SpriteUtils
                 // Removes the first elements, keeping a given size.
                 public void ShiftUntil(int size)
                 {
+                    if (size < 0) size = 0;
                     while (Count > size) { Shift(); }
                 }
             }
