@@ -20,8 +20,8 @@ namespace AlephVault.Unity.SpriteUtils
                     "Choose a valid texture index among the configured textures"
                 );
 
-                return pool.Get(idx, () => new Tuple<Texture2D, Rect?, uint, uint, float, Action, Action>(
-                    textures[idx], null, 32, 32, 32, null, null
+                return pool.Get(idx, () => new Tuple<Texture2D, Rect?, Size2D, Size2D, float, Action, Action>(
+                    textures[idx], null, new Size2D { Width = 32, Height = 32}, new Size2D { Width = 0, Height = 0}, 32, null, null
                 ));
             }
         }

@@ -31,10 +31,20 @@ namespace AlephVault.Unity.SpriteUtils
             public readonly uint FrameHeight;
 
             /// <summary>
+            ///   The width of the padding. Might be 0.
+            /// </summary>
+            public readonly uint PaddingWidth;
+            
+            /// <summary>
+            ///   The height of the padding. Might be 0.
+            /// </summary>
+            public readonly uint PaddingHeight;
+
+            /// <summary>
             ///   The pixels per unit for each sprite. Strictly greater than 0.
             /// </summary>
             public readonly float PixelsPerUnit;
-
+            
             /// <summary>
             ///   The underlying 2D texture for this grid.
             /// </summary>
@@ -75,12 +85,15 @@ namespace AlephVault.Unity.SpriteUtils
             /// <param name="rect">An optional rect to use</param>
             /// <param name="frameWidth">The frame width</param>
             /// <param name="frameHeight">The frame height</param>
+            /// <param name="paddingWidth">The padding width</param>
+            /// <param name="paddingHeight">The padding height</param>
             /// <param name="pixelsPerUnit">The pixels per unit</param>
             /// <param name="onFinalized">What do do when this sprite grid is released</param>
             /// <exception cref="ArgumentNullException">The texture is null</exception>
             /// <exception cref="ArgumentException">The dimensions are inconsistent</exception>
             public SpriteGrid(
-                Texture2D texture, Rect? rect, uint frameWidth, uint frameHeight, float pixelsPerUnit,
+                Texture2D texture, Rect? rect, uint frameWidth, uint frameHeight,
+                uint paddingWidth, uint paddingHeight, float pixelsPerUnit,
                 Action onInitialized, Action onFinalized
             ) {
                 if (texture == null) throw new ArgumentNullException(nameof(texture));
@@ -99,15 +112,17 @@ namespace AlephVault.Unity.SpriteUtils
                 if (frameWidth == 0) throw new ArgumentException("The frame width cannot be 0");
                 if (frameHeight == 0) throw new ArgumentException("The frame height cannot be 0");
                 if (pixelsPerUnit <= 0) throw new ArgumentException("The pixels per unit must be positive");
-                if (texture.width % frameWidth != 0) throw new ArgumentException(
+                if (texture.width % (frameWidth + paddingWidth) != 0) throw new ArgumentException(
                     "The frame width must be an exact divider of the texture's width"
                 );
-                if (texture.height % frameHeight != 0) throw new ArgumentException(
+                if (texture.height % (frameHeight + paddingHeight) != 0) throw new ArgumentException(
                     "The frame height must be an exact divider of the texture's height"
                 );
 
                 FrameWidth = frameWidth;
                 FrameHeight = frameHeight;
+                PaddingWidth = paddingWidth;
+                PaddingHeight = paddingHeight;
                 PixelsPerUnit = pixelsPerUnit;
                 Texture = texture;
                 FrameColumns = (uint)(rect.Value.width / frameWidth);
@@ -176,7 +191,8 @@ namespace AlephVault.Unity.SpriteUtils
                 if (sprites[row * FrameColumns + column] == null)
                 {
                     Rect rect = new Rect(
-                        FrameWidth * column + _subSubRect.x, _subSubRect.height - FrameHeight * (row + 1) + _subSubRect.y,
+                        (FrameWidth + PaddingWidth) * column + _subSubRect.x, 
+                        _subSubRect.height - (FrameHeight + PaddingHeight) * (row + 1) + _subSubRect.y,
                         FrameWidth, FrameHeight
                     );
                     sprites[row * FrameColumns + column] = Sprite.Create(Texture, rect, pivot, PixelsPerUnit);

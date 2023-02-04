@@ -28,9 +28,9 @@ namespace AlephVault.Unity.SpriteUtils
 
             internal IdentifiedSpriteGrid(
                 IdentifiedSpriteGridPool<T> pool, T key, Texture2D texture, Rect? rect,
-                uint frameWidth, uint frameHeight, float pixelsPerUnit, Action onInitialized,
-                Action onFinalized
-            ) : base(texture, rect, frameWidth, frameHeight, pixelsPerUnit, onInitialized, onFinalized)
+                uint frameWidth, uint frameHeight, uint paddingWidth, uint paddingHeight,
+                float pixelsPerUnit, Action onInitialized, Action onFinalized
+            ) : base(texture, rect, frameWidth, frameHeight, paddingWidth, paddingHeight, pixelsPerUnit, onInitialized, onFinalized)
             {
                 if (key == null) throw new ArgumentNullException(nameof(key));
                 Key = key;
