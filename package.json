@@ -1,6 +1,6 @@
 {
   "name": "com.alephvault.unity.spriteutils",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "displayName": "Aleph Vault - Unity - SpriteUtils",
   "description": "Several tools to deal with sprites in an easier and more convenient way (e.g. loading sprite grids).",
   "unity": "2018.1",
